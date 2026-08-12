@@ -14,3 +14,6 @@ class Product(Base):
     price: Mapped[Decimal] = mapped_column(Numeric(10,2),nullable=False)
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.category_id"))
     category: Mapped["Category"] = relationship(back_populates="products")
+    cart_items: Mapped[list["CartItem"]] = relationship(back_populates="product")
+    order_items: Mapped[list["OrderItem"]] = relationship(back_populates="product")
+    inventory: Mapped["Inventory"] = relationship(back_populates="product")
