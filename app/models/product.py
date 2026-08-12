@@ -12,7 +12,7 @@ class Product(Base):
     product_description: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(nullable= False,default=True)
     price: Mapped[Decimal] = mapped_column(Numeric(10,2),nullable=False)
-    category_id: Mapped[int] = mapped_column(ForeignKey("categories.category_id"))
+    category_id: Mapped[int] = mapped_column(ForeignKey("categories.category_id"),nullable=False)
     category: Mapped["Category"] = relationship(back_populates="products")
     cart_items: Mapped[list["CartItem"]] = relationship(back_populates="product")
     order_items: Mapped[list["OrderItem"]] = relationship(back_populates="product")
