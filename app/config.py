@@ -23,5 +23,10 @@ class Settings(BaseSettings):
             f"{self.DB_NAME}"
         )
 
+    @property
+    def SYNC_DATABASE_URL(self) -> str:
+        return f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+
+
 
 settings = Settings()
