@@ -9,7 +9,7 @@ from sqlalchemy import UniqueConstraint
 class CartItem(Base):
     __tablename__ = "cart_items"
     __table_args__ = (UniqueConstraint("product_id", "cart_id"),)
-    cartItem_id: Mapped[int] = mapped_column(primary_key=True,autoincrement=True)
+    cart_item_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.product_id"),nullable=False)
     cart_id: Mapped[int] = mapped_column(ForeignKey("carts.cart_id"),nullable=False)
     product_quantity: Mapped[int] = mapped_column(nullable=False)
