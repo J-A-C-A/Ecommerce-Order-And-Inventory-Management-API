@@ -11,5 +11,4 @@ class CategoryResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class CategoryAdminUpdate(BaseModel):
-    category_id: Optional[int] = None
     category_name: Optional[str] = None
