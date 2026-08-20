@@ -36,5 +36,5 @@ class AuthService():
 
         access_token = create_access_token(user_id= user.user_id, role= user.role)
         refresh_token = create_refresh_token(user_id= user.user_id)
-        token = Token(access_token=access_token, refresh_token=refresh_token, token_type='bearer')
+        token = Token(access_token=access_token, refresh_token=refresh_token)
         return token
