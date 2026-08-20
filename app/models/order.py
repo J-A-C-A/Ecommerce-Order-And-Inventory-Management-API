@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, DateTime
 from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.orm import Mapped
 from app.database import Base
@@ -13,8 +13,8 @@ class Order(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"),nullable=False)
     total_price: Mapped[Decimal] = mapped_column(Numeric(10,2),default=Decimal("0.00"),nullable=False)
     status: Mapped[OrderStatus] = mapped_column(nullable=False,default=OrderStatus.PENDING)
-    order_date: Mapped[datetime.datetime] = mapped_column(nullable=False, default= lambda: datetime.datetime.now(datetime.UTC))
-    modification_date: Mapped[datetime.datetime] = mapped_column(nullable=False, onupdate= lambda: datetime.datetime.now(datetime.UTC))
+    order_date: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True),nullable=False, default= lambda: datetime.datetime.now(datetime.UTC))
+    modification_date: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), nullable=False, onupdate= lambda: datetime.datetime.now(datetime.UTC))
     street: Mapped[str] = mapped_column(nullable=False)
     building_number: Mapped[str] = mapped_column(nullable=False)
     apartment_number: Mapped[str] = mapped_column(nullable=True)
