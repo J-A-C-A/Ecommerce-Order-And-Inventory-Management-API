@@ -7,6 +7,9 @@ class InventoryRepository():
     def __init__(self, db: AsyncSession):
         self.db = db
 
+    def add(self, new_item: Inventory) -> None:
+        self.db.add(new_item)
+
     async def get_by_product_id(self, product_id: int) -> Inventory | None:
         query = select(Inventory).where(Inventory.product_id == product_id)
         result = await self.db.execute(query)
