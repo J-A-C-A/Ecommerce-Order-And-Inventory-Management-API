@@ -1,3 +1,4 @@
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, or_
 from app.models.product import Product
@@ -8,6 +9,9 @@ class ProductRepository():
     def __init__(self,db:AsyncSession):
         self.db = db
 
+    def add(self, new_product: Product) -> None:
+        self.db.add(new_product)
+
     async def get_by_id(self,product_id:int) -> Product | None:
         query = select(Product).options(selectinload(Product.category)).where(Product.product_id == product_id)
         result = await self.db.execute(query)
@@ -16,8 +20,10 @@ class ProductRepository():
     async def create_product(self, new_product:Product) -> Product:
         self.db.add(new_product)
         await self.db.commit()
-        await self.db.refresh(new_product)
-        return new_product
+        product_with_category = await self.get_by_id(new_product.product_id)
+        if product_with_category is None:
+            raise NoResultFound(f"No product was found for product ID {new_product.product_id}")
+        return product_with_category
 
     async def update_product(self, product:Product) -> Product:
         await self.db.commit()
