@@ -9,6 +9,7 @@ from app.repositories.product_repository import ProductRepository
 from app.repositories.user_repository import UserRepository
 from app.services.auth_service import AuthService
 from app.services.category_service import CategoryService
+from app.services.inventory_service import InventoryService
 from app.services.product_service import ProductService
 from app.utils.security import decode_token
 from app.database import get_db
@@ -63,3 +64,6 @@ async def get_category_service(repo: CategoryRepository = Depends(get_category_r
 
 async def get_product_service(db: AsyncSession = Depends(get_db), product_repository: ProductRepository = Depends(get_product_repository), inventory_repository: InventoryRepository = Depends(get_inventory_repository)) -> ProductService:
     return ProductService(db= db, product_repository=product_repository, inventory_repository=inventory_repository)
+
+async def get_inventory_service(db: AsyncSession = Depends(get_db), inventory_repository: InventoryRepository = Depends(get_inventory_repository)) -> InventoryService:
+    return InventoryService(db= db, inventory_repository=inventory_repository)
