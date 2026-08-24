@@ -6,6 +6,9 @@ class CartItemRepository():
     def __init__(self, db: AsyncSession):
         self.db = db
 
+    def add(self, new_item: CartItem) -> None:
+        self.db.add(new_item)
+
     async def get_by_cart_and_product(self, cart_id: int, product_id: int) -> CartItem:
         query = select(CartItem).where( and_( CartItem.cart_id == cart_id, CartItem.product_id == product_id) )
         result = await self.db.execute(query)
