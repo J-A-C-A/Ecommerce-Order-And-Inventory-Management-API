@@ -1,4 +1,3 @@
-from typing import Optional
 from pydantic import BaseModel
 from decimal import Decimal
 from app.schemas.product import ProductResponse
@@ -10,7 +9,6 @@ class CartItemCreate(BaseModel):
     product_quantity: int
 
 class CartItemCustomerUpdate(BaseModel):
-    product_id: Optional[int] = None
     product_quantity: Optional[int] = None
 
 class CartItemResponse(BaseModel):
