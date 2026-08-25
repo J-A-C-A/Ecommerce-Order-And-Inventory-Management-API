@@ -48,6 +48,22 @@ class InventoryService():
         product_inventory.quantity_reserved -= quantity
         await self.inventory_repo.update_item(product_inventory)
 
+    async def reserve_stock_without_commit(self, product_id: int, quantity: int) -> None:
+        product_inventory = await self.inventory_repo.get_by_product_id(product_id)
+
+        if product_inventory is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+
+        available_quantity = product_inventory.quantity_available
+
+        if quantity > available_quantity:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                                detail=f"Not enough quantity of product {product_id} to make reservation")
+
+        product_inventory.quantity_reserved += quantity
+        self.inventory_repo.add(product_inventory)
+
+
 
 
 
