@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
-from app.models import Cart, CartItem
+from app.models import Cart, CartItem, Product
 
 
 class CartRepository():
@@ -12,7 +12,7 @@ class CartRepository():
         self.db.add(new_cart)
 
     async def get_by_user_id(self, user_id: int) -> Cart | None:
-        query = select(Cart).options(selectinload(Cart.cart_items).selectinload(CartItem.product)).where(Cart.user_id == user_id)
+        query = select(Cart).options(selectinload(Cart.cart_items).selectinload(CartItem.product).selectinload(Product.category)).where(Cart.user_id == user_id)
         result = await self.db.execute(query)
         return result.scalar_one_or_none()
 
