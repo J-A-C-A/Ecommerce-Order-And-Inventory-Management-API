@@ -32,3 +32,6 @@ class CartItemRepository():
     async def delete_all_from_cart(self, cart_id: int) -> None:
         await self.db.execute(delete(CartItem).where(CartItem.cart_id == cart_id))
         await self.db.commit()
+
+    async def delete_all_from_cart_without_commit(self, cart_id: int) -> None:
+        await self.db.execute(delete(CartItem).where(CartItem.cart_id == cart_id))
