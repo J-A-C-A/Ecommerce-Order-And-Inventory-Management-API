@@ -37,8 +37,9 @@ class CartService():
         return CartResponse(total_cart_price=total_cart_price, cart_items= list_of_items)
 
     async def get_cart(self, user_id: int) -> CartResponse:
-        cart = await self._get_or_create_cart(user_id)
+        await self._get_or_create_cart(user_id)
         await self.db.commit()
+        cart = await self.cart_repo.get_by_user_id(user_id)
         return await self._build_cart_response(cart)
 
     async def add_item_to_cart(self, user_id: int ,new_cart_item_param: CartItemCreate) -> CartResponse:
