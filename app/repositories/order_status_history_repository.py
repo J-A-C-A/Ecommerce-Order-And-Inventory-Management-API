@@ -6,6 +6,9 @@ class OrderStatusHistoryRepository():
     def __init__(self, db: AsyncSession):
         self.db = db
 
+    def add(self, history_entry: OrderStatusHistory) -> None:
+        self.db.add(history_entry)
+
     async def get_all_for_order(self, order_id: int) -> list[OrderStatusHistory]:
         query = select(OrderStatusHistory).where(OrderStatusHistory.order_id == order_id)
         result = await self.db.execute(query)

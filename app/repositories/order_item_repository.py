@@ -6,6 +6,9 @@ class OrderItemRepository():
     def __init__(self, db: AsyncSession):
         self.db = db
 
+    def add(self, new_item: OrderItem) -> None:
+        self.db.add(new_item)
+
     async def create_order_item(self, new_item: OrderItem) -> OrderItem:
         self.db.add(new_item)
         await self.db.commit()
