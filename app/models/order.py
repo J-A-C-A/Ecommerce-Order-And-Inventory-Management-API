@@ -14,7 +14,7 @@ class Order(Base):
     total_price: Mapped[Decimal] = mapped_column(Numeric(10,2),default=Decimal("0.00"),nullable=False)
     status: Mapped[OrderStatus] = mapped_column(nullable=False,default=OrderStatus.PENDING)
     order_date: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True),nullable=False, default= lambda: datetime.datetime.now(datetime.UTC))
-    modification_date: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), nullable=False, onupdate= lambda: datetime.datetime.now(datetime.UTC))
+    modification_date: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), nullable=False,default= lambda: datetime.datetime.now(datetime.UTC) ,onupdate= lambda: datetime.datetime.now(datetime.UTC))
     street: Mapped[str] = mapped_column(nullable=False)
     building_number: Mapped[str] = mapped_column(nullable=False)
     apartment_number: Mapped[str] = mapped_column(nullable=True)
