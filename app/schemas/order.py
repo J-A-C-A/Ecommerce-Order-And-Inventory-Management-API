@@ -26,7 +26,7 @@ class OrderResponse(BaseModel):
     order_items: list[OrderItemResponse]
     status: OrderStatus
     order_date: datetime.datetime
-    modified_date: datetime.datetime
+    modification_date: datetime.datetime
     street: str
     building_number: str
     apartment_number: Optional[str] = None
