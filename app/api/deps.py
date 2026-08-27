@@ -6,6 +6,7 @@ from app.models.user import User
 from app.repositories.category_repository import CategoryRepository
 from app.repositories.inventory_repository import InventoryRepository
 from app.repositories.product_repository import ProductRepository
+from app.repositories.stats_repository import StatsRepository
 from app.repositories.user_repository import UserRepository
 from app.repositories.cart_repository import CartRepository
 from app.repositories.cart_item_repository import CartItemRepository
@@ -18,6 +19,7 @@ from app.services.inventory_service import InventoryService
 from app.services.product_service import ProductService
 from app.services.cart_service import CartService
 from app.services.order_service import OrderService
+from app.services.stats_service import StatsService
 from app.utils.security import decode_token
 from app.database import get_db
 
@@ -49,6 +51,9 @@ async def get_order_item_repository(db: AsyncSession = Depends(get_db)) -> Order
 
 async def get_order_status_history_repository(db: AsyncSession = Depends(get_db)) -> OrderStatusHistoryRepository:
     return OrderStatusHistoryRepository(db=db)
+
+async def get_stats_repository(db: AsyncSession = Depends(get_db)) -> StatsRepository:
+    return StatsRepository(db=db)
 
 async def get_current_user(
         token: str = Depends(oauth2_scheme),
@@ -113,4 +118,5 @@ async def get_order_service(db: AsyncSession = Depends(get_db),
                         cart_service= cart_service)
 
 
-
+async def get_stats_service(db: AsyncSession = Depends(get_db),stats_repository: StatsRepository = Depends(get_stats_repository), product_service: ProductService = Depends(get_product_service)) -> StatsService:
+    return StatsService(db=db, stats_repository=stats_repository, product_service=product_service)
