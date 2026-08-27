@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import Product, Inventory
 from app.repositories.inventory_repository import InventoryRepository
 from app.repositories.product_repository import ProductRepository
-from app.schemas.product import ProductCreate, ProductResponse, ProductAdminUpdate, ProductListResponse
+from app.schemas.product_schema import ProductCreate, ProductResponse, ProductAdminUpdate, ProductListResponse
 
 
 class ProductService():

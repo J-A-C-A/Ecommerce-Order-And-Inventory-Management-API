@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from app.api.health_check import router as health_router
-from app.api.auth import router as auth_router
-from app.api.categories import router as categories_router
-from app.api.products import router as products_router
-from app.api.inventory import router as inventory_router
-from app.api.cart import router as cart_router
-from app.api.order import router as order_router
+from app.api.endpoints_auth import router as auth_router
+from app.api.endpoints_category import router as categories_router
+from app.api.endpoints_product import router as products_router
+from app.api.endpoints_inventory import router as inventory_router
+from app.api.endpoints_cart import router as cart_router
+from app.api.endpoints_order import router as order_router
 from app.api.endpoints_stats import router as stats_router
 
 app = FastAPI()

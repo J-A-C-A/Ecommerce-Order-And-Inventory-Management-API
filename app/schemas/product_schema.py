@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from decimal import Decimal
-from app.schemas.category import CategoryResponse
+from app.schemas.category_schema import CategoryResponse
 from pydantic import ConfigDict
 from typing import Optional
 

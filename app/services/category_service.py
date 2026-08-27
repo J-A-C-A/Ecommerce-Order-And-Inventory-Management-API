@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from app.models import Category
 from app.repositories.category_repository import CategoryRepository
-from app.schemas.category import CategoryCreate, CategoryResponse, CategoryAdminUpdate
+from app.schemas.category_schema import CategoryCreate, CategoryResponse, CategoryAdminUpdate
 
 class CategoryService():
     def __init__(self, category_repository: CategoryRepository):

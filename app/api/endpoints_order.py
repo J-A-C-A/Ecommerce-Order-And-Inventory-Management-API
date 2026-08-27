@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from app.models import User
 from app.services.order_service import OrderService
 from app.api.deps import get_current_user, get_current_admin_user, get_order_service
-from app.schemas.order import OrderCreate, OrderResponse, OrderStatusAdminUpdate
+from app.schemas.order_schema import OrderCreate, OrderResponse, OrderStatusAdminUpdate
 
 router = APIRouter()
 

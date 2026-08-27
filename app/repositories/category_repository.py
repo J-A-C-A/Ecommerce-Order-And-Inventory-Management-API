@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.models.category import Category
+from app.models.category_model import Category
 
 class CategoryRepository():
     def __init__(self, db: AsyncSession):

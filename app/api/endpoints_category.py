@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
-from app.models.user import User
+from app.models.user_model import User
 from app.api.deps import get_category_service, get_current_admin_user
-from app.schemas.category import CategoryCreate, CategoryAdminUpdate, CategoryResponse
+from app.schemas.category_schema import CategoryCreate, CategoryAdminUpdate, CategoryResponse
 from app.services.category_service import CategoryService
 router = APIRouter()
 

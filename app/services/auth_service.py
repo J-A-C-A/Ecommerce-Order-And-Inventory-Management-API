@@ -1,10 +1,10 @@
 from fastapi import HTTPException, status
 from app.repositories import user_repository
 from app.repositories.user_repository import UserRepository
-from app.models.user import User
+from app.models.user_model import User
 from app.enums import RoleType
-from app.schemas.user import UserCreate, UserResponse
-from app.schemas.auth import Token
+from app.schemas.user_schema import UserCreate, UserResponse
+from app.schemas.auth_schema import Token
 from app.utils.security import hash_password, verify_password, create_access_token, create_refresh_token
 
 class AuthService():

@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.inventory_repository import InventoryRepository
-from app.schemas.inventory import InventoryAdminResponse, InventoryAdminUpdate
+from app.schemas.inventory_schema import InventoryAdminResponse, InventoryAdminUpdate
 
 
 class InventoryService():

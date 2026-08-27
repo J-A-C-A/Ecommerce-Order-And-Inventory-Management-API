@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from app.api.deps import get_inventory_service, get_current_admin_user
 from app.models import User
-from app.schemas.inventory import InventoryAdminResponse, InventoryAdminUpdate
+from app.schemas.inventory_schema import InventoryAdminResponse, InventoryAdminUpdate
 from app.services.inventory_service import InventoryService
 
 router = APIRouter()

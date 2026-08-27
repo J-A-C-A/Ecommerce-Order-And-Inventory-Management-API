@@ -8,8 +8,8 @@ from app.repositories.order_status_history_repository import OrderStatusHistoryR
 from app.repositories.cart_repository import CartRepository
 from app.repositories.cart_item_repository import CartItemRepository
 from app.repositories.inventory_repository import InventoryRepository
-from app.schemas.order import OrderCreate, OrderResponse, OrderStatusAdminUpdate, OrderItemResponse
-from app.schemas.product import ProductResponse
+from app.schemas.order_schema import OrderCreate, OrderResponse, OrderStatusAdminUpdate, OrderItemResponse
+from app.schemas.product_schema import ProductResponse
 from app.services.inventory_service import InventoryService
 from app.services.cart_service import CartService
 

@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.enums import RoleType
-from app.models.user import User
+from app.models.user_model import User
 from app.repositories.category_repository import CategoryRepository
 from app.repositories.inventory_repository import InventoryRepository
 from app.repositories.product_repository import ProductRepository

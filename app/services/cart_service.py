@@ -1,12 +1,12 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.cart import Cart
-from app.models.cart_item import CartItem
+from app.models.cart_model import Cart
+from app.models.cart_item_model import CartItem
 from app.repositories.cart_repository import CartRepository
 from app.repositories.cart_item_repository import CartItemRepository
 from app.repositories.product_repository import ProductRepository
-from app.schemas.cart import CartItemResponse, CartResponse, CartItemCreate, CartItemCustomerUpdate
-from app.schemas.product import ProductResponse
+from app.schemas.cart_schema import CartItemResponse, CartResponse, CartItemCreate, CartItemCustomerUpdate
+from app.schemas.product_schema import ProductResponse
 from decimal import Decimal
 
 

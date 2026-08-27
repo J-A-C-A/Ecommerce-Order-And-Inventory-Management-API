@@ -1,7 +1,7 @@
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, or_
-from app.models.product import Product
+from app.models.product_model import Product
 from sqlalchemy.orm import selectinload
 from decimal import Decimal
 

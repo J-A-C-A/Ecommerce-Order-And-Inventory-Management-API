@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from app.api.deps import get_product_service, get_current_admin_user
 from app.models import User
-from app.schemas.product import ProductCreate, ProductAdminUpdate, ProductResponse, ProductListResponse
+from app.schemas.product_schema import ProductCreate, ProductAdminUpdate, ProductResponse, ProductListResponse
 from app.services.product_service import ProductService
 from decimal import Decimal
 

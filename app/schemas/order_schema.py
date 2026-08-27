@@ -1,7 +1,7 @@
 import datetime
 from decimal import Decimal
 from pydantic import BaseModel
-from app.schemas.product import ProductResponse
+from app.schemas.product_schema import ProductResponse
 from app.enums import OrderStatus, ChangeAuthor
 from pydantic import ConfigDict
 from typing import Optional

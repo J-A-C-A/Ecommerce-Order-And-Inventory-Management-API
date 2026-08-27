@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from app.models import User
 from app.api.deps import get_stats_service, get_current_admin_user
 from app.services.stats_service import StatsService
-from app.schemas.stats import TopProductResponse, RevenueResponse, OrderCountByStatus
+from app.schemas.stats_schema import TopProductResponse, RevenueResponse, OrderCountByStatus
 from datetime import date
 
 router = APIRouter()

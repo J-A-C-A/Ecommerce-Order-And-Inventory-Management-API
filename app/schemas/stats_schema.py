@@ -2,7 +2,7 @@ import datetime
 from decimal import Decimal
 from pydantic import BaseModel
 from app.enums import OrderStatus
-from app.schemas.product import ProductResponse
+from app.schemas.product_schema import ProductResponse
 
 
 class TopProductResponse(BaseModel):

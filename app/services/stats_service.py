@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import date,datetime,timezone,time
 from app.repositories.stats_repository import StatsRepository
-from app.schemas.stats import TopProductResponse, RevenueResponse, OrderCountByStatus
+from app.schemas.stats_schema import TopProductResponse, RevenueResponse, OrderCountByStatus
 from app.services.product_service import ProductService
 
 
