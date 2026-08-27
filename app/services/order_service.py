@@ -70,6 +70,7 @@ class OrderService():
             new_history_record = OrderStatusHistory(order_id=new_order.order_id,status= OrderStatus.PENDING,change_by= ChangeAuthor.SYSTEM)
             self.order_status_history_repo.add(new_history_record)
 
+        new_order.total_price = sum(item.product.price * item.product_quantity for item in items_to_reserve)
         await self.cart_item_repo.delete_all_from_cart_without_commit(cart.cart_id)
         await self.db.commit()
         order = await self.order_repo.get_by_id(new_order.order_id)
