@@ -30,3 +30,8 @@ async def cancel_order(order_id: int, current_user: User = Depends(get_current_u
 async def create_order(order_data: OrderCreate,current_user: User = Depends(get_current_user), order_serv: OrderService = Depends(get_order_service)) -> OrderResponse:
     new_order = await order_serv.create_order(user_id=current_user.user_id, order_data = order_data)
     return new_order
+
+@router.post("/orders/{order_id}/pay")
+async def pay_order(order_id: int,current_user: User = Depends(get_current_user), order_serv: OrderService = Depends(get_order_service)) ->OrderResponse:
+    paid_order = await order_serv.pay_order(user_id=current_user.user_id, order_id=order_id)
+    return paid_order
