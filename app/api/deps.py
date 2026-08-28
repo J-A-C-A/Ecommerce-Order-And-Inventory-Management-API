@@ -105,6 +105,7 @@ async def get_order_service(db: AsyncSession = Depends(get_db),
                             cart_repository: CartRepository = Depends(get_cart_repository),
                             cart_item_repository: CartItemRepository = Depends(get_cart_item_repository),
                             inventory_repository: InventoryRepository = Depends(get_inventory_repository),
+                            user_repository: UserRepository = Depends(get_user_repository),
                             inventory_service: InventoryService = Depends(get_inventory_service),
                             cart_service: CartService = Depends(get_cart_service)) -> OrderService:
     return OrderService(db=db,
@@ -114,6 +115,7 @@ async def get_order_service(db: AsyncSession = Depends(get_db),
                         cart_repository= cart_repository,
                         cart_item_repository= cart_item_repository,
                         inventory_repository= inventory_repository,
+                        user_repository= user_repository,
                         inventory_service= inventory_service,
                         cart_service= cart_service)
 
