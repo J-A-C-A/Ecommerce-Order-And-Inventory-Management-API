@@ -6,16 +6,19 @@ from app.repositories.order_repository import OrderRepository
 from app.repositories.order_item_repository import OrderItemRepository
 from app.repositories.order_status_history_repository import OrderStatusHistoryRepository
 from app.repositories.cart_repository import CartRepository
+from app.repositories.user_repository import UserRepository
 from app.repositories.cart_item_repository import CartItemRepository
 from app.repositories.inventory_repository import InventoryRepository
 from app.schemas.order_schema import OrderCreate, OrderResponse, OrderStatusAdminUpdate, OrderItemResponse
 from app.schemas.product_schema import ProductResponse
 from app.services.inventory_service import InventoryService
 from app.services.cart_service import CartService
+from app.utils.celery_app import send_order_confirmation_email
+from datetime import datetime, timedelta, UTC
 
 
 class OrderService():
-    def __init__(self, db: AsyncSession, order_repository: OrderRepository, order_item_repository: OrderItemRepository, order_status_history_repository: OrderStatusHistoryRepository ,cart_repository: CartRepository, cart_item_repository: CartItemRepository, inventory_repository: InventoryRepository, inventory_service: InventoryService, cart_service: CartService) -> None:
+    def __init__(self, db: AsyncSession, order_repository: OrderRepository, order_item_repository: OrderItemRepository, order_status_history_repository: OrderStatusHistoryRepository ,cart_repository: CartRepository, cart_item_repository: CartItemRepository, inventory_repository: InventoryRepository, inventory_service: InventoryService, cart_service: CartService, user_repository: UserRepository) -> None:
         self.db = db
         self.order_repo = order_repository
         self.order_item_repo = order_item_repository
@@ -23,6 +26,7 @@ class OrderService():
         self.cart_repo = cart_repository
         self.cart_item_repo = cart_item_repository
         self.inventory_repo = inventory_repository
+        self.user_repo = user_repository
         self.inventory_serv = inventory_service
         self.cart_serv = cart_service
 
@@ -73,6 +77,9 @@ class OrderService():
         new_order.total_price = sum(item.product.price * item.product_quantity for item in items_to_reserve)
         await self.cart_item_repo.delete_all_from_cart_without_commit(cart.cart_id)
         await self.db.commit()
+        user = await self.user_repo.get_by_id(user_id)
+        if user is not None:
+            send_order_confirmation_email.delay(email_address= user.email, order_id= new_order.order_id)
         order = await self.order_repo.get_by_id(new_order.order_id)
         return self._build_order_response(order)
 
@@ -112,7 +119,7 @@ class OrderService():
         self.order_status_history_repo.add(history_entry)
         await self.db.commit()
         updated_order = await self.order_repo.get_by_id(order_id)
-        return self._build_order_response(order)
+        return self._build_order_response(updated_order)
 
     async def update_order_status(self, order_id: int, status_data: OrderStatusAdminUpdate) -> OrderResponse:
         order = await self.order_repo.get_by_id(order_id)
@@ -141,4 +148,37 @@ class OrderService():
         updated_order = await self.order_repo.get_by_id(order_id)
         return self._build_order_response(order)
 
+    async def pay_order(self,user_id,order_id) -> OrderResponse:
+        order = await self.order_repo.get_by_id(order_id)
+        if order is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+        if order.user_id != user_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User not authorized")
 
+        if order.status == OrderStatus.PENDING:
+            order.status = OrderStatus.PAID
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail=f"Order cannot be paid from status {order.status}")
+
+        self.order_repo.add(order)
+        history_entry = OrderStatusHistory(order_id=order.order_id, status=order.status, change_by=ChangeAuthor.SYSTEM)
+        self.order_status_history_repo.add(history_entry)
+        await self.db.commit()
+        updated_order = await self.order_repo.get_by_id(order_id)
+        return self._build_order_response(updated_order)
+
+    async def cancel_expired_orders(self) -> int:
+        number_of_canceled_orders = 0
+        cutoff_time = datetime.now(UTC) - timedelta(minutes=30)
+        orders_to_cancel = await self.order_repo.get_pending_orders_older_than(cutoff_time)
+
+        for order in orders_to_cancel:
+            for item in order.order_items:
+                await self.inventory_serv.release_stock_without_commit(product_id=item.product_id,quantity=item.product_quantity)
+            order.status = OrderStatus.CANCELED
+            history_entry = OrderStatusHistory(order_id=order.order_id, status=order.status,change_by=ChangeAuthor.SYSTEM)
+            self.order_status_history_repo.add(history_entry)
+            number_of_canceled_orders += 1
+        await self.db.commit()
+        return number_of_canceled_orders
