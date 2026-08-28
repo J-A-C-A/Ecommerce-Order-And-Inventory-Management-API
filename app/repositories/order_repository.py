@@ -1,8 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
-from app.models import Order, OrderItem, Product
 
+from app.enums import OrderStatus
+from app.models import Order, OrderItem, Product
+from datetime import datetime
 
 class OrderRepository():
     def __init__(self, db: AsyncSession):
@@ -31,3 +33,8 @@ class OrderRepository():
         await self.db.commit()
         await self.db.refresh(order)
         return order
+
+    async def get_pending_orders_older_than(self, cutoff_time: datetime) -> list[Order]:
+        query = select(Order).options(selectinload(Order.order_items).selectinload(OrderItem.product).selectinload(Product.category)).where(Order.order_date < cutoff_time).where(Order.status == OrderStatus.PENDING)
+        result = await self.db.execute(query)
+        return result.scalars().all()
