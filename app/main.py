@@ -17,4 +17,7 @@ app.include_router(inventory_router)
 app.include_router(cart_router)
 app.include_router(order_router)
 app.include_router(stats_router)
+
+
 #uvicorn app.main:app --reload
+#celery -A app.utils.celery_app.celery_app worker --loglevel=info --pool=solo
