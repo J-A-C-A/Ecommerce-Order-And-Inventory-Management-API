@@ -1,6 +1,7 @@
 import asyncio
 from celery import Celery
 from app.config import settings
+from app.utils.email import send_email
 
 celery_app = Celery("ecommerce_tasks",broker=settings.CELERY_BROKER_URL)
 celery_app.conf.beat_schedule = {
@@ -10,8 +11,10 @@ celery_app.conf.beat_schedule = {
     }
 }
 @celery_app.task
-def send_order_confirmation_email(order_id:int, email_address: str) -> None:
-    print(f"Wysyłam email do {email_address} o zamówieniu #{order_id}")
+def send_order_confirmation_email_task(order_id:int, email_address: str) -> None:
+    subject = f"Confirmation e-mail for order {order_id}"
+    body = f"Thank you for your order! We have received your order {order_id} and it has been successfully confirmed. We will process it shortly."
+    asyncio.run(send_email(to_email=email_address,subject=subject, body=body))
 
 async def cancel_pending_orders():
     from app.repositories.order_repository import OrderRepository
