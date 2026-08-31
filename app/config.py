@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     CELERY_BROKER_URL: str = "redis://localhost:6379/1"
+    SMTP_HOST: str
+    SMTP_PORT: int
+    SMTP_USERNAME: str
+    SMTP_PASSWORD: str
+    SMTP_FROM_EMAIL: str
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env"
     )
