@@ -13,7 +13,7 @@ from app.schemas.order_schema import OrderCreate, OrderResponse, OrderStatusAdmi
 from app.schemas.product_schema import ProductResponse
 from app.services.inventory_service import InventoryService
 from app.services.cart_service import CartService
-from app.utils.celery_app import send_order_confirmation_email
+from app.utils.celery_app import send_order_confirmation_email_task
 from datetime import datetime, timedelta, UTC
 
 
@@ -79,7 +79,7 @@ class OrderService():
         await self.db.commit()
         user = await self.user_repo.get_by_id(user_id)
         if user is not None:
-            send_order_confirmation_email.delay(email_address= user.email, order_id= new_order.order_id)
+            send_order_confirmation_email_task.delay(email_address= user.email, order_id= new_order.order_id)
         order = await self.order_repo.get_by_id(new_order.order_id)
         return self._build_order_response(order)
 
