@@ -3,6 +3,8 @@ import pytest_asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy import text, update
+from sqlalchemy.pool import NullPool
+
 
 os.environ["ENV_FILE"] = ".env.test"
 
@@ -12,17 +14,20 @@ from app.database import get_db
 from app.models.user_model import User
 from app.enums import RoleType
 
-@pytest_asyncio.fixture
-async def db_session():
-    engine = create_async_engine(settings.DATABASE_URL)
-    async_session = async_sessionmaker(engine, expire_on_commit=False)
+@pytest_asyncio.fixture(scope="session")
+async def engine():
+    engine = create_async_engine(settings.DATABASE_URL, poolclass=NullPool)
+    yield engine
+    await engine.dispose()
 
+
+@pytest_asyncio.fixture
+async def db_session(engine):
+    async_session = async_sessionmaker(engine, expire_on_commit=False)
     async with async_session() as session:
         yield session
         await session.execute(text("TRUNCATE TABLE cart_items, carts, categories, inventory, order_items, orders,order_status_histories, products,users RESTART IDENTITY CASCADE"))
         await session.commit()
-
-    await engine.dispose()
 
 @pytest_asyncio.fixture
 async def client(db_session):
@@ -82,3 +87,8 @@ async def admin_auth_headers(client, registered_admin, db_session):
     )
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
+
+@pytest_asyncio.fixture
+async def created_category(client, admin_auth_headers):
+    response = await client.post("/categories", json={"category_name": "Electronics"}, headers=admin_auth_headers)
+    return response.json()
