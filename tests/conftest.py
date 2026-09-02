@@ -64,8 +64,14 @@ async def registered_admin(client):
         "password": "password123",
     }
     response = await client.post("/register", json=payload)
+    assert response.status_code == 201
+
     data = response.json()
-    return {"email": payload["email"], "password": payload["password"], "user_id": data["user_id"]}
+    return {
+        "email": payload["email"],
+        "password": payload["password"],
+        "user_id": data["user_id"]
+    }
 
 
 @pytest_asyncio.fixture
@@ -91,4 +97,17 @@ async def admin_auth_headers(client, registered_admin, db_session):
 @pytest_asyncio.fixture
 async def created_category(client, admin_auth_headers):
     response = await client.post("/categories", json={"category_name": "Electronics"}, headers=admin_auth_headers)
+    return response.json()
+
+@pytest_asyncio.fixture
+async def created_product(client, admin_auth_headers,created_category):
+    payload = {
+        "product_name": "Test Product",
+        "product_description": "Test Description",
+        "is_active": True,
+        "price": 10.00,
+        "category_id": created_category["category_id"],
+        "initial_quantity": 10,
+    }
+    response = await client.post("/products", json=payload, headers=admin_auth_headers)
     return response.json()
