@@ -11,6 +11,10 @@ class InventoryService():
 
     async def get_inventory(self, product_id: int) -> InventoryAdminResponse:
         stack_for_product = await self.inventory_repo.get_by_product_id(product_id)
+
+        if stack_for_product is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+
         return InventoryAdminResponse.model_validate(stack_for_product)
 
     async def update_inventory(self, product_id: int ,new_inventory: InventoryAdminUpdate) -> InventoryAdminResponse:
