@@ -51,8 +51,24 @@ async def registered_customer(client):
         "password": "password123",
     }
     response = await client.post("/register", json=payload)
+    assert response.status_code == 201
     data = response.json()
     return {"email": payload["email"], "password": payload["password"], "user_id": data["user_id"]}
+
+@pytest_asyncio.fixture
+async def registered_second_customer(client):
+    payload = {
+        "first_name": "Piotr",
+        "last_name": "Testowy",
+        "email": "piotrtest@example.com",
+        "phone_number": "999888777",
+        "password": "password123",
+    }
+    response = await client.post("/register", json=payload)
+    assert response.status_code == 201
+    data = response.json()
+    return { "email": payload["email"],"password": payload["password"],"user_id": data["user_id"]}
+
 
 @pytest_asyncio.fixture
 async def registered_admin(client):
@@ -65,32 +81,29 @@ async def registered_admin(client):
     }
     response = await client.post("/register", json=payload)
     assert response.status_code == 201
-
     data = response.json()
-    return {
-        "email": payload["email"],
-        "password": payload["password"],
-        "user_id": data["user_id"]
-    }
+    return {"email": payload["email"],"password": payload["password"],"user_id": data["user_id"]}
 
 
 @pytest_asyncio.fixture
 async def customer_auth_headers(client, registered_customer):
     response = await client.post("/login", data= {"username": registered_customer["email"], "password": registered_customer["password"]})
+    assert response.status_code == 200
+    token = response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
+
+@pytest_asyncio.fixture
+async def second_customer_auth_headers(client, registered_second_customer):
+    response = await client.post("/login",data={"username": registered_second_customer["email"],"password": registered_second_customer["password"]})
+    assert response.status_code == 200
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 
 @pytest_asyncio.fixture
 async def admin_auth_headers(client, registered_admin, db_session):
-    await db_session.execute(
-        update(User)
-        .where(User.user_id == registered_admin["user_id"]).values(role= RoleType.ADMIN)
-    )
+    await db_session.execute(update(User).where(User.user_id == registered_admin["user_id"]).values(role= RoleType.ADMIN))
     await db_session.commit()
-    response = await client.post(
-        "/login",
-        data={"username": registered_admin["email"], "password": registered_admin["password"]},
-    )
+    response = await client.post("/login",data={"username": registered_admin["email"], "password": registered_admin["password"]},)
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 
@@ -111,3 +124,9 @@ async def created_product(client, admin_auth_headers,created_category):
     }
     response = await client.post("/products", json=payload, headers=admin_auth_headers)
     return response.json()
+
+@pytest_asyncio.fixture
+async def created_cart_with_item(client, customer_auth_headers,created_product):
+    payload = {"product_id": created_product["product_id"], "product_quantity": 2}
+    response = await client.post("/cart/items", json=payload, headers=customer_auth_headers)
+    return {"product": created_product, "cart": response.json()}
