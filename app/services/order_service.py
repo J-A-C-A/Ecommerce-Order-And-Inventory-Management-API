@@ -48,8 +48,8 @@ class OrderService():
 
     async def create_order(self, user_id, order_data: OrderCreate) -> OrderResponse:
         cart = await self.cart_repo.get_by_user_id(user_id)
-        if len(cart.cart_items) == 0:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No items in cart")
+        if cart is None or len(cart.cart_items) == 0:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cart is empty")
 
         items_to_reserve = []
         for item in cart.cart_items:
