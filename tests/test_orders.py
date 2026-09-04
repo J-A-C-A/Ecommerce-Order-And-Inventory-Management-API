@@ -10,7 +10,6 @@ async def test_create_order_status(client, created_cart_with_item, customer_auth
                "city": "Default city",
                "country": "Default country",}
     response = await client.post("/orders", json=payload, headers=customer_auth_headers)
-    print(response.json())
     assert response.status_code == 201
     data = response.json()
     assert data["status"] == "Pending"
