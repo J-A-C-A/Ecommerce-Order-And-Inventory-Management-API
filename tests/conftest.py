@@ -130,3 +130,58 @@ async def created_cart_with_item(client, customer_auth_headers,created_product):
     payload = {"product_id": created_product["product_id"], "product_quantity": 2}
     response = await client.post("/cart/items", json=payload, headers=customer_auth_headers)
     return {"product": created_product, "cart": response.json()}
+
+@pytest_asyncio.fixture
+async def shipped_order(client,created_product,customer_auth_headers,admin_auth_headers):
+    cart_response = await client.post("/cart/items",json={"product_id": created_product["product_id"],"product_quantity": 2},headers=customer_auth_headers)
+    assert cart_response.status_code == 201
+    payload = {
+        "street": "Testowa",
+        "building_number": "1",
+        "apartment_number": "1",
+        "postal_code": "01-001",
+        "city": "Testowe",
+        "country": "Testlandia",}
+    order_response = await client.post("/orders",json=payload,headers=customer_auth_headers)
+    assert order_response.status_code == 201
+
+    order = order_response.json()
+    order_id = order["order_id"]
+
+    paid_response = await client.patch(f"/orders/{order_id}/status",json={"status": "Paid"},headers=admin_auth_headers)
+    assert paid_response.status_code == 200
+
+    shipped_response = await client.patch(f"/orders/{order_id}/status",json={"status": "Shipped"},headers=admin_auth_headers)
+    assert shipped_response.status_code == 200
+
+    return {"order": order,"product": created_product}
+
+
+@pytest_asyncio.fixture
+async def delivered_order(client,created_product,customer_auth_headers,admin_auth_headers):
+    cart_response = await client.post("/cart/items",json={"product_id": created_product["product_id"],"product_quantity": 2},headers=customer_auth_headers)
+    assert cart_response.status_code == 201
+    payload = {
+        "street": "Testowa",
+        "building_number": "2",
+        "apartment_number": "2",
+        "postal_code": "02-002",
+        "city": "Testowe",
+        "country": "Testlandia",}
+
+    order_response = await client.post("/orders",json=payload,headers=customer_auth_headers)
+    assert order_response.status_code == 201
+
+    order = order_response.json()
+    order_id = order["order_id"]
+
+    paid_response = await client.patch(f"/orders/{order_id}/status",json={"status": "Paid"},headers=admin_auth_headers)
+    assert paid_response.status_code == 200
+
+    shipped_response = await client.patch(f"/orders/{order_id}/status",json={"status": "Shipped"},headers=admin_auth_headers)
+    assert shipped_response.status_code == 200
+
+    delivered_response = await client.patch(f"/orders/{order_id}/status",json={"status": "Delivered"},headers=admin_auth_headers)
+    assert delivered_response.status_code == 200
+
+    return {"order": order,"product": created_product}
