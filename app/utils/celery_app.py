@@ -1,9 +1,16 @@
 import asyncio
 from celery import Celery
+from sqlalchemy.pool import NullPool
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from app.config import settings
 from app.utils.email import send_email
 
 celery_app = Celery("ecommerce_tasks",broker=settings.CELERY_BROKER_URL)
+
+celery_engine = create_async_engine(settings.DATABASE_URL,echo=True,poolclass=NullPool,)
+
+CelerySession = async_sessionmaker(bind=celery_engine,expire_on_commit=False)
+
 celery_app.conf.beat_schedule = {
     "cancel_expired_orders": {
         "task": "app.utils.celery_app.cancel_pending_orders_task",
@@ -27,9 +34,8 @@ async def cancel_pending_orders():
     from app.repositories.product_repository import ProductRepository
     from app.services.inventory_service import InventoryService
     from app.services.cart_service import CartService
-    from app.database import AsyncLocalSession
     from app.services.order_service import OrderService
-    async with AsyncLocalSession() as db:
+    async with CelerySession() as db:
         order_repo = OrderRepository(db=db)
         order_item_repo = OrderItemRepository(db=db)
         order_status_history_repo = OrderStatusHistoryRepository(db=db)
@@ -56,3 +62,6 @@ async def cancel_pending_orders():
 @celery_app.task
 def cancel_pending_orders_task() -> None:
     asyncio.run(cancel_pending_orders())
+
+#celery -A app.utils.celery_app.celery_app worker --loglevel=info --pool=solo
+#celery -A app.utils.celery_app.celery_app beat --loglevel=info
