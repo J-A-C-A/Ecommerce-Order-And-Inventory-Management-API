@@ -185,3 +185,43 @@ async def delivered_order(client,created_product,customer_auth_headers,admin_aut
     assert delivered_response.status_code == 200
 
     return {"order": order,"product": created_product}
+
+@pytest_asyncio.fixture
+async def order_service_instance(db_session):
+    from app.repositories.order_repository import OrderRepository
+    from app.repositories.order_status_history_repository import OrderStatusHistoryRepository
+    from app.repositories.inventory_repository import InventoryRepository
+    from app.services.inventory_service import InventoryService
+    from app.services.order_service import OrderService
+    from app.repositories.cart_repository import CartRepository
+    from app.repositories.cart_item_repository import CartItemRepository
+    from app.repositories.order_item_repository import OrderItemRepository
+    from app.repositories.user_repository import UserRepository
+    from app.services.cart_service import CartService
+    from app.repositories.product_repository import ProductRepository
+
+    order_repo = OrderRepository(db_session)
+    order_item_repo = OrderItemRepository(db_session)
+    order_status_history_repo = OrderStatusHistoryRepository(db_session)
+    cart_repo = CartRepository(db_session)
+    cart_item_repo = CartItemRepository(db_session)
+    inventory_repo = InventoryRepository(db_session)
+    user_repo = UserRepository(db_session)
+    product_repo = ProductRepository(db_session)
+
+    inventory_service = InventoryService(db=db_session, inventory_repository=inventory_repo)
+    cart_service = CartService(db=db_session, cart_repository=cart_repo, cart_item_repository=cart_item_repo, product_repository=product_repo)
+
+    order_service = OrderService(
+        db=db_session,
+        order_repository=order_repo,
+        order_item_repository=order_item_repo,
+        order_status_history_repository=order_status_history_repo,
+        cart_repository=cart_repo,
+        cart_item_repository=cart_item_repo,
+        inventory_repository=inventory_repo,
+        inventory_service=inventory_service,
+        cart_service=cart_service,
+        user_repository=user_repo
+    )
+    return order_service
