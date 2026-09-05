@@ -1,4 +1,8 @@
 import pytest
+from datetime import datetime, timedelta, UTC
+from sqlalchemy import update
+from app.models.order_model import Order
+from app.enums import OrderStatus
 
 @pytest.mark.asyncio
 async def test_create_order_status(client, created_cart_with_item, customer_auth_headers):
@@ -318,3 +322,63 @@ async def test_cancel_delivered_order_fails(client,created_cart_with_item,custom
 
     cancel_response = await client.post(f"/orders/{order_id}/cancel",headers=customer_auth_headers)
     assert cancel_response.status_code == 400
+
+@pytest.mark.asyncio
+async def test_cancel_expired_order(client, created_cart_with_item,admin_auth_headers ,customer_auth_headers, order_service_instance, db_session):
+    payload = {
+        "street": "Przykładowa",
+        "building_number": "1",
+        "apartment_number": "1",
+        "postal_code": "01-001",
+        "city": "Default city",
+        "country": "Default country",}
+
+    order_response = await client.post("/orders",json=payload,headers=customer_auth_headers)
+    assert order_response.status_code == 201
+    order_id = order_response.json()["order_id"]
+
+    old_date = datetime.now(UTC) - timedelta(minutes=31)
+    await db_session.execute(update(Order).where(Order.order_id == order_id).values(order_date=old_date))
+    await db_session.commit()
+
+    order_service = order_service_instance
+    canceled_orders = await order_service.cancel_expired_orders()
+    assert canceled_orders == 1
+    response = await client.get(f"/orders/{order_id}",headers=customer_auth_headers)
+    assert response.status_code == 200
+    assert response.json()["status"] == "Canceled"
+
+    inventory_response = await client.get(f"/inventory/{created_cart_with_item['product']['product_id']}", headers=admin_auth_headers)
+    assert inventory_response.status_code == 200
+    inventory_data = inventory_response.json()
+    assert inventory_data["quantity_reserved"] == 0
+
+@pytest.mark.asyncio
+async def test_cancel_no_expired_order(client, created_cart_with_item,admin_auth_headers ,customer_auth_headers, order_service_instance, db_session):
+    payload = {
+        "street": "Przykładowa",
+        "building_number": "1",
+        "apartment_number": "1",
+        "postal_code": "01-001",
+        "city": "Default city",
+        "country": "Default country",}
+
+    order_response = await client.post("/orders",json=payload,headers=customer_auth_headers)
+    assert order_response.status_code == 201
+    order_id = order_response.json()["order_id"]
+
+    old_date = datetime.now(UTC) - timedelta(minutes=29)
+    await db_session.execute(update(Order).where(Order.order_id == order_id).values(order_date=old_date))
+    await db_session.commit()
+
+    order_service = order_service_instance
+    canceled_orders = await order_service.cancel_expired_orders()
+    assert canceled_orders == 0
+    response = await client.get(f"/orders/{order_id}",headers=customer_auth_headers)
+    assert response.status_code == 200
+    assert response.json()["status"] == "Pending"
+
+    inventory_response = await client.get(f"/inventory/{created_cart_with_item['product']['product_id']}", headers=admin_auth_headers)
+    assert inventory_response.status_code == 200
+    inventory_data = inventory_response.json()
+    assert inventory_data["quantity_reserved"] == 2
