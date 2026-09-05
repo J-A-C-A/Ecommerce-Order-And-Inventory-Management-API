@@ -1,0 +1,9 @@
+.venv/
+.idea/
+.env
+.env.test
+__pycache__/
+*.pyc
+celerybeat-schedule*
+test.py
+health_check.py
